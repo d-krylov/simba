@@ -1,1 +1,9 @@
-# simba
+# Simba
+
+## Building
+
+
+## Using
+```
+./simba in
+```

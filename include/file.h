@@ -3,36 +3,16 @@
 
 #include <iostream>
 #include <string>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
+
 
 class MemoryMappedFile
 {
 public:
     
-    MemoryMappedFile(std::string file_name) {
+    explicit MemoryMappedFile(std::string file_name): file_name(file_name), file(0) {}
 
-        file = open(file_name.c_str(), O_RDONLY);
-
-        if (file < 0) {
-            std::cout << "Error" << std::endl;
-            abort();
-        }
-
-        struct stat s;
-        int status = fstat(file, &s);
-        memory_buffer_size = s.st_size;
-
-        memory_buffer = reinterpret_cast<uint8_t*>(
-            mmap(nullptr, memory_buffer_size, PROT_READ, MAP_PRIVATE, file, 0));
-        
-        if (memory_buffer == MAP_FAILED) {
-            std::cout << "Error memory mapping file!" << std::endl;
-            abort();
-        }
-    }
+    bool OpenFileForWrite(std::size_t size);
+    bool OpenFileForRead();
 
     std::size_t GetSize() {
         return memory_buffer_size;
@@ -42,10 +22,13 @@ public:
         return memory_buffer;
     }
 
+    void Sync(uint8_t* end);
+
 private:
-    int file;
-    uint8_t *memory_buffer;
+    int         file;
+    uint8_t    *memory_buffer;
     std::size_t memory_buffer_size;
+    std::string file_name;
 };
 
 

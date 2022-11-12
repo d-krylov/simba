@@ -9,7 +9,8 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set (SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/parser.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/tools.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/tools.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/file.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
