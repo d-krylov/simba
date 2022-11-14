@@ -3,12 +3,12 @@
 
 #define DEBUG (1)
 
-#if DEBUG == 1
+#if DEBUG == 0
 #define LOG(out, ...) \
     std::printf(__VA_ARGS__)
 #else
 #define LOG(out, ...) \
-    std::sprintf(out __VA_OPT__(,) __VA_ARGS__)
+    std::fprintf(out __VA_OPT__(,) __VA_ARGS__)
 #endif
 
 

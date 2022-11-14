@@ -20,6 +20,8 @@ public:
 
   static int GetAlignment();
 
+  void Sync();
+
 private:
   void *memory_buffer;
   uint64_t size;

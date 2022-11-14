@@ -14,9 +14,15 @@ void Worker(int fd, unsigned size, unsigned offset, unsigned diff, unsigned n) {
   
   input.Initialization(fd, size, offset, MemoryMappedRegion::Mode::READ);
 
-  Parser p(input.GetBuffer() + diff, input.GetBuffer() + size);
+  std::string out_name = std::to_string(n) + ".log";
+
+  auto ptr = fopen(out_name.c_str(), "w");
+
+  Parser p(input.GetBuffer() + diff, input.GetBuffer() + size, ptr);
 
   p.Parse();
+
+  fclose(ptr);
 }
 
 

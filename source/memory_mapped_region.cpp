@@ -26,3 +26,12 @@ void MemoryMappedRegion::Initialization(int fd, std::size_t sz, uint64_t off,
   if (memory_buffer == MAP_FAILED) {
   }
 }
+
+void MemoryMappedRegion::Sync() {
+
+  if (msync(memory_buffer, size, MS_SYNC) == -1) {
+  }
+
+  if (munmap(memory_buffer, size) == -1) {
+  }
+}

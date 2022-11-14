@@ -7,7 +7,7 @@
 #include <iostream>
 #include <thread>
 
-Parser::Parser(char *l, char *r) : start(l), end(r) {}
+Parser::Parser(char *l, char *r, FILE* out) : start(l), end(r), out(out) {}
 
 void Parser::Parse() {
 

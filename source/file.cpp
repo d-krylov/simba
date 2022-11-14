@@ -9,7 +9,7 @@ File::File(std::string file_name) : file_name(file_name), size(0) {}
 
 void File::Initialization() {
 
-  file_descriptor = open(file_name.c_str(), O_RDWR);
+  file_descriptor = open(file_name.c_str(), O_CREAT | O_RDWR);
 
   if (file_descriptor == -1) {
   }

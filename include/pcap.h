@@ -11,7 +11,7 @@ struct global_header {
   uint32_t sigfigs;
   uint32_t snaplen;
   uint32_t network;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct packet_header {
@@ -19,7 +19,7 @@ struct packet_header {
   uint32_t ts_usec;
   uint32_t incl_len;
   uint32_t orig_len;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct ip_header {
@@ -33,7 +33,7 @@ struct ip_header {
   uint16_t HeaderChecksum;
   uint32_t SourceIPAddress;
   uint32_t DestinationIPAddress;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct ethernet_header {
@@ -45,7 +45,7 @@ struct udp_header {
   uint16_t DestinationPort;
   uint16_t Length;
   uint16_t Checksum;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 inline global_header *GetGlobalHeader(char *ptr) {

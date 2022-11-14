@@ -2,6 +2,7 @@
 #define SIMBA_H
 
 #include "simba_types.h"
+#include <stdio.h>
 
 #define FLAG_INCREMENTAL (0x8)
 
@@ -10,13 +11,13 @@ struct market_data_packet_header {
   uint16_t MsgSize;
   uint16_t MsgFlags;
   uint64_t SendingTime;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct incremental_packet_header {
   uint64_t TransactTime;
   uint32_t ExchangeTradingSessionID;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 
@@ -25,7 +26,7 @@ struct sbe_header {
   uint16_t TemplateID;
   uint16_t SchemaID;
   uint16_t Version;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 enum UpdateAction { New = 0, Change, Delete };
@@ -39,7 +40,7 @@ struct order_update {
   uint32_t RptSeq;
   uint8_t MDUpdateAction;
   char MDEntryType;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct order_execution {
@@ -54,7 +55,7 @@ struct order_execution {
   uint32_t RptSeq;
   uint8_t MDUpdateAction;
   char MDEntryType;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct MDEntries {
@@ -65,7 +66,7 @@ struct MDEntries {
   int64_t TradeID;
   uint64_t MDFlags;
   char MDEntryType;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct order_book_snapshot {
@@ -74,7 +75,7 @@ struct order_book_snapshot {
   uint32_t RptSeq;
   uint32_t ExchangeTradingSessionID;
   group_size NoMDEntries;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct best_prices {
@@ -82,7 +83,7 @@ struct best_prices {
   Decimal5NULL MktOfferPx;
   uint8_t BPFlags;
   int32_t SecurityID;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct trading_session_status {
@@ -96,7 +97,7 @@ struct trading_session_status {
   char MarketId;
   char MarketSegmentId;
   uint8_t TradSesEvent;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 
@@ -105,12 +106,12 @@ struct SecurityDefinition
   uint32_t TotNumReports;
   String25 Symbol;
   int32_t SecurityID;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct sequence_reset { 
   int32_t NewSeqNo;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct security_definition_update_report {
@@ -119,7 +120,7 @@ struct security_definition_update_report {
   Decimal5NULL Volatility;
   Decimal5NULL TheorPrice;
   Decimal5NULL TheorPriceLimit;
-  int Print(uint64_t offset, char *out);
+  int Print(uint64_t offset, FILE *out);
 } PACKED;
 
 struct empty_book {

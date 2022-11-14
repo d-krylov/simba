@@ -4,10 +4,11 @@
 #include "global.h"
 #include <cstdint>
 #include <vector>
+#include <stdio.h>
 
 class Parser {
 public:
-  Parser(char *l, char *r);
+  Parser(char *l, char *r, FILE* out = nullptr);
 
   void Parse();
 
@@ -17,7 +18,7 @@ private:
   char *start;
   char *end;
   char *current;
-  char *out = nullptr;
+  FILE *out;
 
 private:
   std::size_t ParseGlobalHeader();
