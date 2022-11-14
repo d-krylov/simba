@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CPP_COMPILER clang++-15)
 
+set(WITH_ADDRESS_SANITIZER 0)
+set(WITH_THREAD_SANITIZER  0)
 
 find_package(Threads REQUIRED)
 
@@ -21,6 +23,16 @@ set (SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/worker.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+if(WITH_ADDRESS_SANITIZER) 
+target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address)
+target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address)
+endif()
+
+if(WITH_THREAD_SANITIZER)
+target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=thread)
+target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=thread)
+endif()
 
 target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

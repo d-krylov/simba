@@ -82,5 +82,6 @@ inline udp_header *GetUdp(char *ptr) { return reinterpret_cast<udp_header *>(ptr
 
 
 static_assert(GetIPSize() == 20);
+static_assert(GetUDPSize() == 8);
 
 #endif // PCAP_H

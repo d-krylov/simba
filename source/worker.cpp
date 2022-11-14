@@ -18,6 +18,10 @@ void Worker(int fd, unsigned size, unsigned offset, unsigned diff, unsigned n) {
 
   auto ptr = fopen(out_name.c_str(), "w");
 
+  if (n == 0) {
+    diff += GetGHSize();
+  }
+
   Parser p(input.GetBuffer() + diff, input.GetBuffer() + size, ptr);
 
   p.Parse();

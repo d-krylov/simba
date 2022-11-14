@@ -153,6 +153,14 @@ inline std::size_t GetTSSSize() {
   return sizeof(trading_session_status);
 }
 
+inline std::size_t GetSRSize() {
+  return sizeof(sequence_reset);
+}
+
+inline std::size_t GetMDESize() {
+  return sizeof(MDEntries);
+}
+
 inline market_data_packet_header *
 GetMarketDataPacketHeader(char *ptr) {
   return reinterpret_cast<market_data_packet_header *>(ptr);

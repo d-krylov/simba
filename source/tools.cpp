@@ -14,6 +14,10 @@ int packet_header::Print(uint64_t offset, FILE *out) {
   return LOG(out, ph.data(), offset, ts_sec, ts_usec, incl_len, orig_len);
 }
 
+int ip_header::Print(uint64_t offset, FILE *out) {
+  //return LOG(out);
+}
+
 int udp_header::Print(uint64_t offset, FILE *out) {
   return LOG(out, udph.data(), offset, SB(SourcePort), SB(DestinationPort),
              SB(Length), SB(Checksum));

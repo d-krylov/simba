@@ -11,8 +11,6 @@ Parser::Parser(char *l, char *r, FILE* out) : start(l), end(r), out(out) {}
 
 void Parser::Parse() {
 
-  std::size_t i = 0;
-
   current = start;
 
   while (current != end) {
@@ -76,8 +74,8 @@ void Parser::Parse() {
         message_size = 0;
         break;
       case TemplateID::SequenceReset:
-        message_size -= sizeof(SequenceReset);
-        current += sizeof(SequenceReset);
+        message_size -= GetSRSize();
+        current += GetSRSize();
         break;
       case TemplateID::Heartbeat:
         break;
@@ -109,6 +107,7 @@ std::size_t Parser::ParseGlobalHeader() {
   gh->Print(GetOffset(), out);
 
   current += GetGHSize();
+  return GetGHSize();
 }
 
 std::size_t Parser::ParseOrderBookSnapshot() {
@@ -122,8 +121,8 @@ std::size_t Parser::ParseOrderBookSnapshot() {
   for (uint8_t j = 0; j < obsn->NoMDEntries.numInGroup; j++) {
     auto mde = GetMDEntries(current);
     mde->Print(GetOffset(), out);
-    current += sizeof(MDEntries);
-    size += sizeof(MDEntries);
+    current += GetMDESize();
+    size += GetMDESize();
   }
   return size;
 }

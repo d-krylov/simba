@@ -12,9 +12,9 @@ CommandLine::CommandLine(int argc, char **argv) {
 }
 
 void CommandLine::Help() {
-
-  std::cout << "Help: " << 
-               "\n Usage: ./simba [options] input" << 
-               "\n Options:"  <<
-               "\n  -o           output file name" << std::endl;
+  std::cout << "Help: "
+            << "\n Usage: ./simba [options] input"
+            << "\n Options:"
+            << "\n  -o           output file name"
+            << "\n  -c           run in concurrency mode" << std::endl;
 }

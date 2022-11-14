@@ -5,8 +5,8 @@
 #include <string_view>
 
 constexpr std::string_view gh =
-"[ %#016x ]\033[0;32m Global Header: \033[0m             \
- [ magic number: 0x%x; \
+"[ %#016x ]" FRED("  Global Header:                 ") \
+"[ magic number: 0x%x; \
  version major: %d; \
  version minor: %d; \
  thiszone: 0x%x; \
@@ -15,41 +15,41 @@ constexpr std::string_view gh =
  network: %d ]\n"; 
 
 constexpr std::string_view ph = 
-"[ %#016x ] \033[0;32m Packet Header: \033[0m             \
- [ ts_sec: %d; \
+"[ %#016x ]" FRED("  Packet Header:               ") \
+"[ ts_sec: %d; \
  ts_usec: %d; \
  incl_len: %d; \
  orig_len: %d ]\n";
 
 constexpr std::string_view udph = 
-"[ %#016x ] \033[0;32m UDP Header: \033[0m                \
- [ Source Port: %d; \
+"[ %#016x ]" FGRN("  UDP Header:                  ") \
+"[ Source Port: %d; \
  Destination Port: %d; \
  Length: %d; \
  Checksum: 0x%x ]\n";
 
 constexpr std::string_view mdph = 
-"[ %#016x ] \033[0;31m Market Data Packet Header: \033[0m \
- [ MsgSeqNum: %d; \
+"[ %#016x ]" FMAG("  Market Data Packet Header:   ") \
+"[ MsgSeqNum: %d; \
  MsgSize: %d; \
  MsgFlags: 0x%x; \
  SendingTime: %llu ]\n";
 
 constexpr std::string_view iph = 
-"[ %#016x ] \033[0;31m Incremental Packet Header: \033[0m \
- [ TransactTime: %llu; \
+"[ %#016x ]" FMAG("  Incremental Packet Header:   ") \
+"[ TransactTime: %llu; \
  ExchangeTradingSessionID: %d ]\n";
 
 constexpr std::string_view sbeh = 
-"[ %#016x ] \033[0;31m SBE Header: \033[0m                \
- [ BlockLength: %d; \
+"[ %#016x ]" FMAG("  SBE Header:                  ") \
+"[ BlockLength: %d; \
  TemplateID: %d; \
  SchemaID: %d; \
  Version: %d ]\n";
 
 constexpr std::string_view ou = 
-"[ %#016x ] \033[0;31m Order Update: \033[0m              \
- [ MDEntryID: %lld; \
+"[ %#016x ]" FMAG("  Order Update:                ") \
+"[ MDEntryID: %lld; \
  MDEntryPx.mantissa: %llu; \
  MDEntrySize: %lld; \
  MDFlags: %llu; \
@@ -59,8 +59,8 @@ constexpr std::string_view ou =
  MDEntryType: %u ]\n";
 
 constexpr std::string_view oe = 
-"[ %#016x ] \033[0;31m Order Execution: \033[0m           \
- [ MDEntryID: %lld; \
+"[ %#016x ]" FMAG("  Order Execution:             ") \
+"[ MDEntryID: %lld; \
  MDEntryPx.mantissa: %lld; \
  MDEntrySize: %lld; \
  LastPx.mantissa: %lld; \
@@ -73,8 +73,8 @@ constexpr std::string_view oe =
  MDEntryType: %u ]\n";
 
 constexpr std::string_view obs = 
-"[ %#016x ] \033[0;31m Order Book Snapshot: \033[0m       \
- [ SecurityID: %d; \
+"[ %#016x ]" FMAG("  Order Book Snapshot:         ") \
+"[ SecurityID: %d; \
  LastMsgSeqNumProcessed: %u; \
  RptSeq: %d; \
  ExchangeTradingSessionID: %u; \
@@ -82,8 +82,8 @@ constexpr std::string_view obs =
  NoMDEntries.numInGroup - %d ]\n";
 
 constexpr std::string_view mde = 
-"[ %#016x ] \033[0;34m MDEntries: \033[0m                 \
- [ MDEntryID: %llu; \
+"[ %#016x ]" FBLU("  MDEntries:                   ") \
+"[ MDEntryID: %llu; \
  TransactTime: %llu; \
  MDEntryPx.mantissa: %lld; \
  MDEntrySize: %d; \
@@ -92,15 +92,15 @@ constexpr std::string_view mde =
  MDEntryType: %u ]\n";
 
 constexpr std::string_view bp = 
-"[ %#016x ] \033[0;31m Best Prices: \033[0m               \
- [ MktBidPx.mantissa: %d; \
+"[ %#016x ]" FBLU("Best Prices:                   ") \
+"[ MktBidPx.mantissa: %d; \
  MktOfferPx.mantissa: %d; \
  BPFlags: %u; \
  SecurityID: %u ]\n";
 
 constexpr std::string_view trading_session =
-"[ %#016x ] \033[0;31m Trading Session Status: \033[0m    \
- [ TradSesOpenTime: %llu; \
+"[ %#016x ]" FRED("  Trading Session Status:      ") \
+"[ TradSesOpenTime: %llu; \
  TradSesCloseTime: %llu; \
  TradSesIntermClearingStartTime: %llu; \
  TradSesIntermClearingEndTime: %llu \
