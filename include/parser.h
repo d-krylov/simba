@@ -1,33 +1,31 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "global.h"
 #include <cstdint>
- 
+#include <vector>
 
-class Parser
-{
+class Parser {
 public:
-    
-    void Parse(uint8_t* buffer, char* out, std::size_t bsize);
+  Parser(char *l, char *r);
 
-    void GetPacketsOffset(uint8_t* buffer);
+  void Parse();
 
-    uint8_t* GetEnd() {
-        return reinterpret_cast<uint8_t*>(out);
-    }
+  std::size_t GetOffset() { return (current - start); }
 
 private:
+  char *start;
+  char *end;
+  char *current;
+  char *out = nullptr;
 
-    uint8_t* base;
-    char*    out;
-
-    int out_offset = 0;
-
-    std::size_t ParseOrderBookSnapshot(uint8_t*& buffer, char*& out);
-    std::size_t ParseOrderUpdate(uint8_t*& buffer, char*& out);
-    std::size_t ParseOrderExecution(uint8_t *&buffer, char*& out);
-    std::size_t ParseTradingSessionStatus(uint8_t *&buffer, char*& out);
-    std::size_t ParseBestPrices(uint8_t *&buffer, char*& out);
+private:
+  std::size_t ParseGlobalHeader();
+  std::size_t ParseOrderBookSnapshot();
+  std::size_t ParseOrderUpdate();
+  std::size_t ParseOrderExecution();
+  std::size_t ParseTradingSessionStatus();
+  std::size_t ParseBestPrices();
 };
 
 #endif // PARSER_H

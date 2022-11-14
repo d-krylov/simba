@@ -1,153 +1,70 @@
 #include "tools.h"
+#include "global.h"
+#include "pcap.h"
 #include "print_strings.h"
+#include "simba.h"
 #include <cstdio>
-#include <string>
 
-int PrintGlobalHeader(global_header &h, uint64_t offset, char *out) {
-#if DEBUG == 1
-  return std::printf(gh.data(), offset, h.magic_number, h.version_major,
-                     h.version_minor, h.thiszone, h.sigfigs, h.snaplen,
-                     h.network);
-#else
-  return std::sprintf(out, gh.data(), offset, h.magic_number, h.version_major,
-                      h.version_minor, h.thiszone, h.sigfigs, h.snaplen,
-                      h.network);
-#endif
+int global_header::Print(uint64_t offset, char *out) {
+  return LOG(out, gh.data(), offset, magic_number, version_major, version_minor,
+             thiszone, sigfigs, snaplen, network);
 }
 
-int PrintPacketHeader(packet_header &h, uint64_t offset, char *out) {
-#if DEBUG == 1
-  return std::printf(ph.data(), offset, h.ts_sec, h.ts_usec, h.incl_len,
-                     h.orig_len);
-#else
-  return std::sprintf(out, ph.data(), offset, h.ts_sec, h.ts_usec, h.incl_len,
-                      h.orig_len);
-#endif
+int packet_header::Print(uint64_t offset, char *out) {
+  return LOG(out, ph.data(), offset, ts_sec, ts_usec, incl_len, orig_len);
 }
 
-int PrintUdp(udp &h, uint64_t offset, char *out) {
-#if DEBUG == 1
-  return std::printf(udph.data(), offset, SB(h.SourcePort),
-                     SB(h.DestinationPort), SB(h.Length), SB(h.Checksum));
-#else
-  return std::sprintf(out, udph.data(), offset, SB(h.SourcePort),
-                      SB(h.DestinationPort), SB(h.Length), SB(h.Checksum));
-#endif
+int udp_header::Print(uint64_t offset, char *out) {
+  return LOG(out, udph.data(), offset, SB(SourcePort), SB(DestinationPort),
+             SB(Length), SB(Checksum));
 }
 
-int PrintMarketDataPacketHeader(market_data_packet_header &h, uint64_t offset,
-                                char *out) {
-#if DEBUG == 1
-  return std::printf(mdph.data(), offset, h.MsgSeqNum, h.MsgSize, h.MsgFlags,
-                     h.SendingTime);
-#else
-  return std::sprintf(out, mdph.data(), offset, h.MsgSeqNum, h.MsgSize,
-                      h.MsgFlags, h.SendingTime);
-#endif
+int market_data_packet_header::Print(uint64_t offset, char *out) {
+  return LOG(out, mdph.data(), offset, MsgSeqNum, MsgSize, MsgFlags,
+             SendingTime);
 }
 
-int PrintIncrementalPacketHeader(incremental_packet_header &h, uint64_t offset,
-                                 char *out) {
-#if DEBUG == 1
-  return std::printf(iph.data(), offset, h.TransactTime,
-                     h.ExchangeTradingSessionID);
-#else
-  return std::sprintf(out, iph.data(), offset, h.TransactTime,
-                      h.ExchangeTradingSessionID);
-#endif
+int incremental_packet_header::Print(uint64_t offset, char *out) {
+  return LOG(out, iph.data(), offset, TransactTime, ExchangeTradingSessionID);
 }
 
-int PrintSbeHeader(sbe_header &h, uint64_t offset, char *out) {
-#if DEBUG == 1
-  return std::printf(sbeh.data(), offset, h.BlockLength, h.TemplateID,
-                     h.SchemaID, h.Version);
-#else
-  return std::sprintf(out, sbeh.data(), offset, h.BlockLength, h.TemplateID,
-                      h.SchemaID, h.Version);
-#endif
+int sbe_header::Print(uint64_t offset, char *out) {
+  return LOG(out, sbeh.data(), offset, BlockLength, TemplateID, SchemaID,
+             Version);
 }
 
-int PrintOrderUpdate(order_update &h, uint64_t offset, char *out) {
-#if DEBUG == 1
-  return std::printf(ou.data(), offset, h.MDEntryID, h.MDEntryPx.mantissa,
-                     h.MDEntrySize, h.MDFlags, h.SecurityID, h.RptSeq,
-                     h.MDUpdateAction, h.MDEntryType);
-#else
-  return std::sprintf(out, ou.data(), offset, h.MDEntryID, h.MDEntryPx.mantissa,
-                      h.MDEntrySize, h.MDFlags, h.SecurityID, h.RptSeq,
-                      h.MDUpdateAction, h.MDEntryType);
-#endif
+int order_update::Print(uint64_t offset, char *out) {
+  return LOG(out, ou.data(), offset, MDEntryID, MDEntryPx.mantissa, MDEntrySize,
+             MDFlags, SecurityID, RptSeq, MDUpdateAction, MDEntryType);
 }
 
-int PrintOrderBookSnapshot(order_book_snapshot &h, uint64_t offset, char *out) {
-#if DEBUG == 1
-  return std::printf(obs.data(), offset, h.SecurityID, h.LastMsgSeqNumProcessed,
-                     h.RptSeq, h.ExchangeTradingSessionID,
-                     h.NoMDEntries.blockLength, h.NoMDEntries.numInGroup);
-#else
-  return std::printf(out, obs.data(), offset, h.SecurityID,
-                     h.LastMsgSeqNumProcessed, h.RptSeq,
-                     h.ExchangeTradingSessionID, h.NoMDEntries.blockLength,
-                     h.NoMDEntries.numInGroup);
-#endif
+int order_book_snapshot::Print(uint64_t offset, char *out) {
+  return LOG(out, obs.data(), offset, SecurityID, LastMsgSeqNumProcessed,
+             RptSeq, ExchangeTradingSessionID, NoMDEntries.blockLength,
+             NoMDEntries.numInGroup);
 }
 
-int PrintMDEntry(MDEntries &h, uint64_t offset, char *out) {
-#if DEBUG == 1
-  return std::printf(mde.data(), offset, h.MDEntryID, h.TransactTime,
-                     h.MDEntryPx.mantissa, h.MDEntrySize, h.TradeID, h.MDFlags,
-                     h.MDEntryType);
-#else
-  return std::sprintf(out, mde.data(), offset, h.MDEntryID, h.TransactTime,
-                      h.MDEntryPx.mantissa, h.MDEntrySize, h.TradeID, h.MDFlags,
-                      h.MDEntryType);
-#endif
+int MDEntries::Print(uint64_t offset, char *out) {
+  return LOG(out, mde.data(), offset, MDEntryID, TransactTime,
+             MDEntryPx.mantissa, MDEntrySize, TradeID, MDFlags, MDEntryType);
 }
 
-int PrintOrderExecution(order_execution &h, uint64_t offset, char *out) {
-#if DEBUG == 1
-  return std::printf(oe.data(), offset, h.MDEntryID, h.MDEntryPx.mantissa,
-                     h.MDEntrySize, h.LastPx.mantissa, h.LastQty, h.TradeID,
-                     h.MDFlags, h.SecurityID, h.RptSeq, h.MDUpdateAction,
-                     h.MDEntryType);
-#else
-  return std::sprintf(out, oe.data(), offset, h.MDEntryID, h.MDEntryPx.mantissa,
-                      h.MDEntrySize, h.LastPx.mantissa, h.LastQty, h.TradeID,
-                      h.MDFlags, h.SecurityID, h.RptSeq, h.MDUpdateAction,
-                      h.MDEntryType);
-#endif
+int order_execution::Print(uint64_t offset, char *out) {
+
+  return LOG(out, oe.data(), offset, MDEntryID, MDEntryPx.mantissa, MDEntrySize,
+             LastPx.mantissa, LastQty, TradeID, MDFlags, SecurityID, RptSeq,
+             MDUpdateAction, MDEntryType);
 }
 
-int PrintBestPrices(best_prices &h, uint64_t offset, char *out) {
-#if DEBUG == 1
-  return std::printf(bp.data(), offset, h.MktBidPx.mantissa,
-                     h.MktOfferPx.mantissa, h.BPFlags, h.SecurityID);
-#else
-  return std::sprintf(out, bp.data(), offset, h.MktBidPx.mantissa,
-                      h.MktOfferPx.mantissa, h.BPFlags, h.SecurityID);
-#endif
+int best_prices::Print(uint64_t offset, char *out) {
+  return LOG(out, bp.data(), offset, MktBidPx.mantissa, MktOfferPx.mantissa,
+             BPFlags, SecurityID);
 }
 
-int PrintTradingSessionStatus(trading_session_status &h, uint64_t offset,
-                              char *out) {
-#if DEBUG == 1
-  return std::printf(trading_session.data(), offset, h.TradSesOpenTime,
-                     h.TradSesCloseTime, h.TradSesIntermClearingStartTime,
-                     h.TradSesIntermClearingEndTime, h.MarketSegmentId,
-                     h.ExchangeTradingSessionID, h.TradSesStatus, h.MarketId,
-                     h.MarketSegmentId, h.TradSesEvent);
-#else
-  return std::sprintf(out, trading_session.data(), offset, h.TradSesOpenTime,
-                      h.TradSesCloseTime, h.TradSesIntermClearingStartTime,
-                      h.TradSesIntermClearingEndTime, h.MarketSegmentId,
-                      h.ExchangeTradingSessionID, h.TradSesStatus, h.MarketId,
-                      h.MarketSegmentId, h.TradSesEvent);
-#endif
+int trading_session_status::Print(uint64_t offset, char *out) {
+  return LOG(out, trading_session.data(), offset, TradSesOpenTime,
+             TradSesCloseTime, TradSesIntermClearingStartTime,
+             TradSesIntermClearingEndTime, MarketSegmentId,
+             ExchangeTradingSessionID, TradSesStatus, MarketId, MarketSegmentId,
+             TradSesEvent);
 }
-
-bool CheckMsgId(uint16_t msg_id) {
-  return (msg_id >= 3 && msg_id <= 7) || (msg_id >= 9 && msg_id <= 13) ||
-         (msg_id == 1002);
-}
-
-void GetSpecifierFromType() {}

@@ -5,104 +5,92 @@
 #include "tools.h"
 #include <cassert>
 #include <iostream>
+#include <thread>
 
-void Parser::GetPacketsOffset(uint8_t* buffer) {
+Parser::Parser(char *l, char *r) : start(l), end(r) {}
 
-
-}
-
-void Parser::Parse(uint8_t *buffer, char *out, std::size_t bsize) {
-
-  base = buffer;
-
-  auto gh = GetGlobalHeader(buffer);
-  out_offset = PrintGlobalHeader(*gh, buffer - base, out);
-  
-  buffer += sizeof(global_header);
-  out += out_offset;
+void Parser::Parse() {
 
   std::size_t i = 0;
 
-  while (buffer != base + bsize) {
+  current = start;
 
-    auto ph = GetPacketHeader(buffer);
-    std::cout << "Packet number " << i++ << std::endl;
-    out_offset = PrintPacketHeader(*ph, buffer - base, out);
-    out += out_offset;
-    buffer += sizeof(packet_header);
-    buffer += sizeof(ip) + sizeof(ethernet);
-    auto uph = GetUdp(buffer);
+  while (current != end) {
 
-    out_offset = PrintUdp(*uph, buffer - base, out);
-    
-    out += out_offset;
-    buffer += sizeof(udp);
+    auto ph = GetPacketHeader(current);
 
-    auto mdph = GetMarketDataPacketHeader(buffer);
+    ph->Print(GetOffset(), out);
+
+    current += GetPHSize();
+    current += GetIPSize() + GetETHSize();
+    auto uph = GetUdp(current);
+
+    uph->Print(GetOffset(), out);
+
+    current += GetUDPSize();
+
+    auto mdph = GetMarketDataPacketHeader(current);
     int message_size = mdph->MsgSize;
 
-    out_offset = PrintMarketDataPacketHeader(*mdph, buffer - base, out);
+    mdph->Print(GetOffset(), out);
 
-    out += out_offset;
-    buffer += sizeof(market_data_packet_header);
-    message_size -= sizeof(market_data_packet_header);
+    current += GetMDPHSize();
+    message_size -= GetMDPHSize();
 
     if (mdph->MsgFlags & FLAG_INCREMENTAL) {
 
-      auto iph = GetIncrementalPacketHeader(buffer);
-      out_offset = PrintIncrementalPacketHeader(*iph, buffer - base, out);
+      auto iph = GetIncrementalPacketHeader(current);
+      iph->Print(GetOffset(), out);
 
-      out += out_offset;
-      buffer += sizeof(incremental_packet_header);
-      message_size -= sizeof(incremental_packet_header);
+      current += GetIPHSize();
+      message_size -= GetIPHSize();
     }
 
     while (message_size > 0) {
-      auto sbeh = GetSbeHeader(buffer);
+      auto sbeh = GetSbeHeader(current);
 
-      out_offset = PrintSbeHeader(*sbeh, buffer - base, out);
+      sbeh->Print(GetOffset(), out);
 
-      out += out_offset;
-      buffer += sizeof(sbe_header);
-      message_size -= sizeof(sbe_header);
+      current += GetSBESize();
+      message_size -= GetSBESize();
 
       switch (sbeh->TemplateID) {
       case TemplateID::OrderUpdate:
-        message_size -= ParseOrderUpdate(buffer, out);
+        message_size -= ParseOrderUpdate();
         break;
       case TemplateID::OrderBookSnapshot:
-        message_size -= ParseOrderBookSnapshot(buffer, out);
+        message_size -= ParseOrderBookSnapshot();
         break;
       case TemplateID::OrderExecution:
-        message_size -= ParseOrderExecution(buffer, out);
+        message_size -= ParseOrderExecution();
         break;
       case TemplateID::SecurityDefinition:
-        buffer += message_size;
+        current += message_size;
         message_size = 0;
         break;
       case TemplateID::BestPrices:
-        message_size -= ParseBestPrices(buffer, out);
+        message_size -= ParseBestPrices();
         break;
       case TemplateID::TradingSessionStatus:
-        buffer += message_size;
+        current += message_size;
         message_size = 0;
         break;
       case TemplateID::SequenceReset:
         message_size -= sizeof(SequenceReset);
-        buffer += sizeof(SequenceReset);
+        current += sizeof(SequenceReset);
         break;
       case TemplateID::Heartbeat:
         break;
       case TemplateID::SecurityDefinitionUpdateReport:
-        buffer += message_size;
+        current += message_size;
         message_size = 0;
         break;
       case TemplateID::EmptyBook:
-        buffer += message_size;
+        current += message_size;
         message_size = 0;
         break;
       case TemplateID::SecurityStatus:
-        buffer += message_size;
+        current += message_size;
         message_size = 0;
         break;
       default:
@@ -116,59 +104,60 @@ void Parser::Parse(uint8_t *buffer, char *out, std::size_t bsize) {
   }
 }
 
-std::size_t Parser::ParseOrderBookSnapshot(uint8_t *&buffer, char*& out) {
-  std::size_t size = 0;
-  auto obsn = GetOrderBookSnapshot(buffer);
-  out_offset = PrintOrderBookSnapshot(*obsn, buffer - base, out);
+std::size_t Parser::ParseGlobalHeader() {
+  auto gh = GetGlobalHeader(current);
+  gh->Print(GetOffset(), out);
 
-  out += out_offset;
-  buffer += sizeof(order_book_snapshot);
-  size += sizeof(order_book_snapshot);
+  current += GetGHSize();
+}
+
+std::size_t Parser::ParseOrderBookSnapshot() {
+  std::size_t size = 0;
+  auto obsn = GetOrderBookSnapshot(current);
+  obsn->Print(GetOffset(), out);
+
+  current += GetOBSSize();
+  size += GetOBSSize();
 
   for (uint8_t j = 0; j < obsn->NoMDEntries.numInGroup; j++) {
-    auto mde = GetMDEntries(buffer);
-    out_offset = PrintMDEntry(*mde, buffer - base, out);
-    out += out_offset;
-    buffer += sizeof(MDEntries);
+    auto mde = GetMDEntries(current);
+    mde->Print(GetOffset(), out);
+    current += sizeof(MDEntries);
     size += sizeof(MDEntries);
   }
   return size;
 }
 
-std::size_t Parser::ParseOrderExecution(uint8_t *&buffer, char*& out) {
-  auto oe = GetOrderExecution(buffer);
-  out_offset = PrintOrderExecution(*oe, buffer - base, out);
-  out += out_offset;
-  buffer += sizeof(order_execution);
+std::size_t Parser::ParseOrderExecution() {
+  auto oe = GetOrderExecution(current);
+  oe->Print(GetOffset(), out);
+  current += sizeof(order_execution);
   return sizeof(order_execution);
 }
 
-std::size_t Parser::ParseOrderUpdate(uint8_t *&buffer, char*& out) {
-  auto ouh = GetOrderUpdate(buffer);
-  out_offset = PrintOrderUpdate(*ouh, buffer - base, out);
-  out += out_offset;
-  buffer += sizeof(order_update);
-  return sizeof(order_update);
+std::size_t Parser::ParseOrderUpdate() {
+  auto ouh = GetOrderUpdate(current);
+  ouh->Print(GetOffset(), out);
+  current += GetOUSize();
+  return GetOUSize();
 }
 
-std::size_t Parser::ParseTradingSessionStatus(uint8_t *&buffer, char*& out) {
-  auto tss = GetTradingSessionStatus(buffer);
-  out_offset = PrintTradingSessionStatus(*tss, buffer - base, out);
-  out += out_offset;
-  return sizeof(trading_session_status);
+std::size_t Parser::ParseTradingSessionStatus() {
+  auto tss = GetTradingSessionStatus(current);
+  tss->Print(GetOffset(), out);
+  return GetTSSSize();
 }
 
-std::size_t Parser::ParseBestPrices(uint8_t *&buffer, char*& out) {
+std::size_t Parser::ParseBestPrices() {
   std::size_t size = 0;
-  auto gs = GetGroupSize(buffer);
-  buffer += sizeof(group_size);
+  auto gs = GetGroupSize(current);
+  current += sizeof(group_size);
   size += sizeof(group_size);
 
   for (int j = 0; j < gs->numInGroup; j++) {
-    auto bp = GetBestPrices(buffer);
-    out_offset = PrintBestPrices(*bp, buffer - base, out);
-    out += out_offset;
-    buffer += sizeof(best_prices);
+    auto bp = GetBestPrices(current);
+    bp->Print(GetOffset(), out);
+    current += sizeof(best_prices);
     size += sizeof(best_prices);
   }
   return size;

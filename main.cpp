@@ -1,38 +1,44 @@
 #include "file.h"
+#include "memory_mapped_region.h"
+#include "command_line.h"
 #include "parser.h"
-#include <fstream>
+#include "pcap.h"
+#include "worker.h"
+#include "concurrency.h"
+#include <string>
 #include <iostream>
-#include "tools.h"
 
-void Help(void) {
-  std::cout << "Using: ./simba input-file output-file" << std::endl;
+void SimpleRun(std::string input_file_name) {
+  File in(input_file_name);
+  in.Initialization();
+  MemoryMappedRegion mm;
+  mm.Initialization(in.GetFD(), in.GetSize(), 0, MemoryMappedRegion::Mode::READ);
+  Parser p(mm.GetBuffer() + GetGHSize(), mm.GetBuffer() + mm.GetSize());
+  p.Parse();
 }
+
 
 int main(int argc, char **argv) {
 
-  if (argc == 1) {
-    Help();
-    return 0;
-  }
+  CommandLine cli(argc, argv);
 
   std::string input_file_name(argv[1]);
-  std::string output_file_name;
-
-  if (argc > 2) {
-    output_file_name = argv[2];
-  }
-
-  MemoryMappedFile in(input_file_name);
-  MemoryMappedFile out(output_file_name); 
   
-  in.OpenFileForRead();
-  out.OpenFileForWrite(GetOutputSize(in.GetSize()));
+  Preprocessor p(input_file_name);
+  p.Run();
 
-  Parser p;
+  auto offsets = p.GetOffsets();
 
-  p.Parse(in.GetBuffer(), reinterpret_cast<char*>(out.GetBuffer()), in.GetSize());
+  offsets.emplace_back(p.GetFileSize());
 
-  out.Sync(p.GetEnd());
+  Concurrency conc;
+
+  File in(input_file_name);
+  in.Initialization();
+
+  conc.Run(in.GetFD(), offsets);
 
   return 0;
 }
+
+

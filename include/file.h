@@ -1,37 +1,25 @@
 #ifndef FILE_H
 #define FILE_H
 
-#include <iostream>
 #include <string>
 
-
-class MemoryMappedFile
-{
+class File {
 public:
-    
-    explicit MemoryMappedFile(std::string file_name): file_name(file_name), file(0) {}
+  explicit File(std::string file_name);
+  ~File();
 
-    bool OpenFileForWrite(std::size_t size);
-    bool OpenFileForRead();
+  void Initialization();
 
-    std::size_t GetSize() {
-        return memory_buffer_size;
-    }
+  std::size_t GetSize();
 
-    uint8_t* GetBuffer() {
-        return memory_buffer;
-    }
-
-    void Sync(uint8_t* end);
+  int GetFD() const {
+    return file_descriptor;
+  }
 
 private:
-    int         file;
-    uint8_t    *memory_buffer;
-    std::size_t memory_buffer_size;
-    std::string file_name;
+  int file_descriptor;
+  std::size_t size;
+  std::string file_name;
 };
-
-
-
 
 #endif // FILE_H

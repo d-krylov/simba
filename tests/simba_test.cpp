@@ -6,7 +6,7 @@ TEST(MarketDataPacketHeaderTest, BasicAssertions) {
     uint8_t buffer[] = {0xf4, 0x4e, 0x6a, 0x02, 0x4e, 0x00, 0x09, 0x00, 
                         0x4c, 0xb3, 0x28, 0xa9, 0xc6, 0x39, 0xb6, 0x16};
 
-    auto hdr = GetMarketDataPacketHeader(buffer);
+    auto hdr = GetMarketDataPacketHeader(reinterpret_cast<char*>(buffer));
 
     ASSERT_EQ(hdr->MsgSeqNum, 40521460);
     ASSERT_EQ(hdr->MsgSize, 78);
@@ -18,7 +18,7 @@ TEST(IncrementalPacketHeaderTest, BasicAssertions) {
     uint8_t buffer[] = {0xb1, 0x8a, 0x28, 0xa9, 0xc6, 0x39, 0xb6, 0x16,
                         0x11, 0x19, 0x00, 0x00};
 
-    auto hdr = GetIncrementalPacketHeader(buffer);
+    auto hdr = GetIncrementalPacketHeader(reinterpret_cast<char*>(buffer));
 
     ASSERT_EQ(hdr->TransactTime, 1636559040000068273);
     ASSERT_EQ(hdr->ExchangeTradingSessionID, 6417);
@@ -28,7 +28,7 @@ TEST(SbeHeaderTest, BasicAssertions) {
 
     uint8_t buffer[] = {0x2a, 0x00, 0x05, 0x00, 0x44, 0x4d, 0x00, 0x00};
 
-    auto hdr = GetSbeHeader(buffer);
+    auto hdr = GetSbeHeader(reinterpret_cast<char*>(buffer));
 
     ASSERT_EQ(hdr->BlockLength, 42);
     ASSERT_EQ(hdr->TemplateID, 5);
@@ -44,7 +44,7 @@ TEST(OrderUpdateTest, BasicAssertions) {
                         0xd1, 0x0a, 0x1f, 0x00, 0xef, 0x61, 0x36, 0x00,
                         0x02, 0x31};
 
-    auto hdr = GetOrderUpdate(buffer);
+    auto hdr = GetOrderUpdate(reinterpret_cast<char*>(buffer));
 
     ASSERT_EQ(hdr->MDEntryID, 1960782248575771888);
     ASSERT_EQ(hdr->MDEntryPx.mantissa, 8450000);

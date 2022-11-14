@@ -1,7 +1,7 @@
 #ifndef SIMBA_H
 #define SIMBA_H
 
-#include "types.h"
+#include "simba_types.h"
 
 #define FLAG_INCREMENTAL (0x8)
 
@@ -10,11 +10,13 @@ struct market_data_packet_header {
   uint16_t MsgSize;
   uint16_t MsgFlags;
   uint64_t SendingTime;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 struct incremental_packet_header {
   uint64_t TransactTime;
   uint32_t ExchangeTradingSessionID;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 
@@ -23,7 +25,8 @@ struct sbe_header {
   uint16_t TemplateID;
   uint16_t SchemaID;
   uint16_t Version;
-};
+  int Print(uint64_t offset, char *out);
+} PACKED;
 
 enum UpdateAction { New = 0, Change, Delete };
 
@@ -36,6 +39,7 @@ struct order_update {
   uint32_t RptSeq;
   uint8_t MDUpdateAction;
   char MDEntryType;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 struct order_execution {
@@ -50,6 +54,7 @@ struct order_execution {
   uint32_t RptSeq;
   uint8_t MDUpdateAction;
   char MDEntryType;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 struct MDEntries {
@@ -60,6 +65,7 @@ struct MDEntries {
   int64_t TradeID;
   uint64_t MDFlags;
   char MDEntryType;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 struct order_book_snapshot {
@@ -68,6 +74,7 @@ struct order_book_snapshot {
   uint32_t RptSeq;
   uint32_t ExchangeTradingSessionID;
   group_size NoMDEntries;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 struct best_prices {
@@ -75,6 +82,7 @@ struct best_prices {
   Decimal5NULL MktOfferPx;
   uint8_t BPFlags;
   int32_t SecurityID;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 struct trading_session_status {
@@ -88,6 +96,7 @@ struct trading_session_status {
   char MarketId;
   char MarketSegmentId;
   uint8_t TradSesEvent;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 
@@ -96,10 +105,12 @@ struct SecurityDefinition
   uint32_t TotNumReports;
   String25 Symbol;
   int32_t SecurityID;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 struct sequence_reset { 
   int32_t NewSeqNo;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 struct security_definition_update_report {
@@ -108,6 +119,7 @@ struct security_definition_update_report {
   Decimal5NULL Volatility;
   Decimal5NULL TheorPrice;
   Decimal5NULL TheorPriceLimit;
+  int Print(uint64_t offset, char *out);
 } PACKED;
 
 struct empty_book {
@@ -116,45 +128,69 @@ struct empty_book {
 
 /* Functions */
 
+inline std::size_t GetSBESize() {
+  return sizeof(sbe_header);
+}
+
+inline std::size_t GetMDPHSize() {
+  return sizeof(market_data_packet_header);
+}
+
+inline std::size_t GetIPHSize() {
+  return sizeof(incremental_packet_header);
+}
+
+inline std::size_t GetOBSSize() {
+  return sizeof(order_book_snapshot);
+}
+
+inline std::size_t GetOUSize() {
+  return sizeof(order_update);
+}
+
+inline std::size_t GetTSSSize() {
+  return sizeof(trading_session_status);
+}
+
 inline market_data_packet_header *
-GetMarketDataPacketHeader(uint8_t *ptr) {
+GetMarketDataPacketHeader(char *ptr) {
   return reinterpret_cast<market_data_packet_header *>(ptr);
 }
 
 inline incremental_packet_header *
-GetIncrementalPacketHeader(uint8_t *ptr) {
+GetIncrementalPacketHeader(char *ptr) {
   return reinterpret_cast<incremental_packet_header *>(ptr);
 }
 
-inline sbe_header *GetSbeHeader(uint8_t *ptr) {
+inline sbe_header *GetSbeHeader(char *ptr) {
   return reinterpret_cast<sbe_header *>(ptr);
 }
 
-inline order_update *GetOrderUpdate(uint8_t *ptr) {
+inline order_update *GetOrderUpdate(char *ptr) {
   return reinterpret_cast<order_update *>(ptr);
 }
 
-inline order_execution *GetOrderExecution(uint8_t *ptr) {
+inline order_execution *GetOrderExecution(char *ptr) {
   return reinterpret_cast<order_execution *>(ptr);
 }
 
-inline group_size *GetGroupSize(uint8_t *ptr) {
+inline group_size *GetGroupSize(char *ptr) {
   return reinterpret_cast<group_size *>(ptr);
 }
 
-inline MDEntries *GetMDEntries(uint8_t *ptr) {
+inline MDEntries *GetMDEntries(char *ptr) {
   return reinterpret_cast<MDEntries *>(ptr);
 }
 
-inline order_book_snapshot *GetOrderBookSnapshot(uint8_t *ptr) {
+inline order_book_snapshot *GetOrderBookSnapshot(char *ptr) {
   return reinterpret_cast<order_book_snapshot *>(ptr);
 }
 
-inline best_prices *GetBestPrices(uint8_t *ptr) {
+inline best_prices *GetBestPrices(char *ptr) {
   return reinterpret_cast<best_prices *>(ptr);
 }
 
-inline trading_session_status *GetTradingSessionStatus(uint8_t *ptr) {
+inline trading_session_status *GetTradingSessionStatus(char *ptr) {
   return reinterpret_cast<trading_session_status *>(ptr);
 }
 
