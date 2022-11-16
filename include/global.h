@@ -1,9 +1,10 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#define DEBUG (1)
+#define DEBUG (0)
+#define CONCURRENCY (0)
 
-#if DEBUG == 0
+#if DEBUG == 1
 #define LOG(out, ...) \
     std::printf(__VA_ARGS__)
 #else
@@ -20,7 +21,7 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
-#if DEBUG == 0
+#if DEBUG == 1
 #define FRED(x) KRED x RST
 #define FGRN(x) KGRN x RST
 #define FYEL(x) KYEL x RST

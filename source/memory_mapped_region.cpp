@@ -21,6 +21,7 @@ void MemoryMappedRegion::Initialization(int fd, std::size_t sz, uint64_t off,
   auto flags = (mode == Mode::WRITE) ? MAP_SHARED : MAP_PRIVATE;
   auto prot = (mode == Mode::READ) ? PROT_READ : (PROT_READ | PROT_WRITE);
 
+  size = sz;
   memory_buffer = mmap(nullptr, sz, prot, flags, fd, off);
 
   if (memory_buffer == MAP_FAILED) {
